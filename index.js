@@ -56,9 +56,17 @@ app.post('/createquestion/:userid', async(req,res) =>{
 app.post('/updateanswer/:questionId', async(req,res) =>{
   const questionId = req.params
   const answer = req.body
-  const currentanswer = Question.findById(questionId)
-  const newquestion = Question.findByIdAndUpdate(questionId, {answers:[...currentanswer.answers, answer]})
-  res.json({data: newquestion})
+  const userId = req.body
+  const currentuser = await User.findById(userId)
+  const currentquestion = await Question.findById(questionId)
+  const currentanswer = new Answer({username: currentuser.username, userbio: currentuser.bio, actualanswer: answer})
+  try{
+    const savedanswer = await currentanswer.save()
+  const newanswer = await Question.findByIdAndUpdate(questionId, {answers:[...currentquestion.answers, savedanswer]})
+  res.json({'data': newanswer})
+  }catch(error){
+    res.json({'data': 'failed'})
+  }
 })
 
 app.post('/user/signup/', async(req, res)=> {
