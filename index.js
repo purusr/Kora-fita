@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 import User from './models/User.js';
 import Question from './models/Questions.js';
 import Answer from './models/Answer.js';
-
+import cors from 'cors'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 const SECRET = 'xyzxyzxyz';
 
 mongoose.connect('mongodb+srv://krish-node:Krishna8686@cluster0.emvic.mongodb.net/?retryWrites=true&w=majority',{ useNewUrlParser: true, useUnifiedTopology: true})
@@ -13,6 +15,7 @@ const app = express();
 
 app.use((express.json()))
 app.use((express.urlencoded({extended: true})))
+app.use(cors())
 
 app.get('/', (req,res)=>{
   res.send('Server is live')
@@ -69,15 +72,16 @@ app.post('/updateanswer/:questionId', async(req,res) =>{
   }
 })
 
-app.post('/user/signup/', async(req, res)=> {
+app.post('/user/signup', async(req, res)=> {
     const { email, password, confirmPassword, firstName, lastName } = req.body
     console.log(email)
     try {
         const existingUser = await User.findOne({ email })
         if(existingUser) return res.status(400).json({ message: "User already exist" }); 
         if(password !== confirmPassword) return res.status(400).json({ message: "Password don't match" })
+        
         const hashedPassword = await bcrypt.hash(password, 12)
-        const result = await User.create({ email, password: hashedPassword, name: `${firstName} ${lastName}`})
+        const result = await User.create({ email:email, password: hashedPassword, username: `${firstName} ${lastName}`, following:[], following:[]})
         const token = jwt.sign({ email: result.email, id: result._id }, SECRET, { expiresIn: "60s" })
         
         res.status(200).json({ result, token })
