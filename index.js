@@ -44,14 +44,16 @@ app.post('/updateFollowing/:userId/:followingId', async(req, res) => {
 })
 
 app.post('/createquestion/:userid', async(req,res) =>{
-  const userid = req.params
-  const questionstring = req.body
-  const newquestion = new Question({userId: userid, question:questionstring, answers:[] })
+  const {userid}  = req.params
+  const {questionstring, username} = req.body
+  console.log(userid)
+  const newquestion = new Question({userId: [{userId: userid, username:username}], question:questionstring, answers:[], likes:[] })
   try{
-    const upquestion = await newquestion.save()
-    res.json({'data':upquestion})
+    await newquestion.save()
+    res.json({'data':'success'})
+    console.log('created question')
   }catch(error){
-    res.json({'data': error})
+    res.status(500).json({'data': 'Something went wrong'})
   }
 })
 
