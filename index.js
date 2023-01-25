@@ -59,9 +59,8 @@ app.post('/createquestion/:userid', async(req,res) =>{
 
 
 app.post('/updateanswer/:questionId', async(req,res) =>{
-  const questionId = req.params
-  const answer = req.body
-  const userId = req.body
+  const {questionId} = req.params
+  const {answer, userId} = req.body
   const currentuser = await User.findById(userId)
   const currentquestion = await Question.findById(questionId)
   const currentanswer = new Answer({username: currentuser.username, userbio: currentuser.bio, actualanswer: answer})
